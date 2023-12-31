@@ -8,7 +8,12 @@ namespace ScienceFestival.REST.Services
     {
         Task<User> Register(UserRegisterDTO userRegisterDTO);
 
-        //login user but return user and jwt token
         Task<object> Login(UserLoginDTO userLoginDTO);
+
+        //get all performers
+        Task<List<User>> GetAllPerformers();
+
+        //get performer by id
+        Task<User> GetPerformerById(string id);
     }
 }

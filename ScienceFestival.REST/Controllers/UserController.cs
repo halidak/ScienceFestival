@@ -42,5 +42,33 @@ namespace ScienceFestival.REST.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("performers")]
+        public async Task<IActionResult> GetPerformers()
+        {
+            try
+            {
+                var performers = await userService.GetAllPerformers();
+                return Ok(performers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("performer/{id}")]
+        public async Task<IActionResult> GetPerformerById(string id)
+        {
+            try
+            {
+                var performer = await userService.GetPerformerById(id);
+                return Ok(performer);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

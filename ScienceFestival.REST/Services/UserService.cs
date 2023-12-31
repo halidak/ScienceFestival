@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ScienceFestival.REST.DTOs;
 using ScienceFestival.REST.Models;
@@ -77,5 +78,24 @@ namespace ScienceFestival.REST.Services
             }
         }
 
+        //TODO: get all performers and get performer by id
+
+        public async Task<List<User>> GetAllPerformers()
+        {
+            var users = await userManager.Users.ToListAsync();
+
+            return users;
+        }
+
+        //get performer by id
+        public async Task<User> GetPerformerById(string id)
+        {
+            var performer = await userManager.FindByIdAsync(id);
+            if (performer == null)
+            {
+                throw new Exception("Performer not found.");
+            }
+            return performer;
+        }
     }
 }
