@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ScienceFestival.REST.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ScienceFestival.REST.DTOs
 {
@@ -15,6 +16,8 @@ namespace ScienceFestival.REST.DTOs
         [Required]
         [Range(18, 65, ErrorMessage = "Age must be between 18 and 65.")]
         public int Age { get; set; }
+        [Required]
+        public Role Role { get; set; }
         [Required]
         public string Password { get; set; }
         [Required]

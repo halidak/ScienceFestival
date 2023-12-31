@@ -10,10 +10,10 @@ namespace ScienceFestival.REST.Services
 
         Task<object> Login(UserLoginDTO userLoginDTO);
 
-        //get all performers
         Task<List<User>> GetAllPerformers();
 
-        //get performer by id
-        Task<User> GetPerformerById(string id);
+        Task<User> GetUserById(string id);
+
+        Task<List<User>> GetAllJuries();
     }
 }

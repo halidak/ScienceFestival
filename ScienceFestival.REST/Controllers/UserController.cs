@@ -15,7 +15,7 @@ namespace ScienceFestival.REST.Controllers
             this.userService = userService;
         }
 
-        [HttpPost("performer-register")]
+        [HttpPost("user-register")]
         public async Task<IActionResult> PerformerRegister(UserRegisterDTO userRegisterDTO)
         {
             try
@@ -29,7 +29,7 @@ namespace ScienceFestival.REST.Controllers
             }
         }
 
-        [HttpPost("performer-login")]
+        [HttpPost("user-login")]
         public async Task<IActionResult> PerformerLogin(UserLoginDTO userLoginDTO)
         {
             try
@@ -57,13 +57,27 @@ namespace ScienceFestival.REST.Controllers
             }
         }
 
-        [HttpGet("performer/{id}")]
+        [HttpGet("user/{id}")]
         public async Task<IActionResult> GetPerformerById(string id)
         {
             try
             {
-                var performer = await userService.GetPerformerById(id);
+                var performer = await userService.GetUserById(id);
                 return Ok(performer);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("juries")]
+        public async Task<IActionResult> GetJuries()
+        {
+            try
+            {
+                var juries = await userService.GetAllJuries();
+                return Ok(juries);
             }
             catch (Exception ex)
             {

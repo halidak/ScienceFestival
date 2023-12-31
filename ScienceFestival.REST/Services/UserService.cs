@@ -26,7 +26,8 @@ namespace ScienceFestival.REST.Services
                 FirstName = userRegisterDTO.FirstName,
                 LastName = userRegisterDTO.LastName,
                 Age = userRegisterDTO.Age,
-                PhoneNumber = userRegisterDTO.PhoneNumber
+                PhoneNumber = userRegisterDTO.PhoneNumber,
+                Role = userRegisterDTO.Role
             };
 
             var result = await userManager.CreateAsync(user, userRegisterDTO.Password);
@@ -82,13 +83,12 @@ namespace ScienceFestival.REST.Services
 
         public async Task<List<User>> GetAllPerformers()
         {
-            var users = await userManager.Users.ToListAsync();
-
-            return users;
+            var performers = await userManager.Users.Where(u => u.Role == Role.Performer).ToListAsync();
+            return performers;
         }
 
         //get performer by id
-        public async Task<User> GetPerformerById(string id)
+        public async Task<User> GetUserById(string id)
         {
             var performer = await userManager.FindByIdAsync(id);
             if (performer == null)
@@ -96,6 +96,12 @@ namespace ScienceFestival.REST.Services
                 throw new Exception("Performer not found.");
             }
             return performer;
+        }
+
+        public async Task<List<User>> GetAllJuries()
+        {
+            var juries = await userManager.Users.Where(u => u.Role == Role.Jury).ToListAsync();
+            return juries;
         }
     }
 }
