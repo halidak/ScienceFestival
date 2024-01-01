@@ -8,7 +8,7 @@ namespace ScienceFestival.REST.Services
     {
         Task<User> Register(UserRegisterDTO userRegisterDTO);
 
-        Task<object> Login(UserLoginDTO userLoginDTO);
+        Task<User> Login(UserLoginDTO userLoginDTO);
 
         Task<List<User>> GetAllPerformers();
 

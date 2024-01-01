@@ -4,6 +4,7 @@ using ScienceFestival.REST.Gateway.Models;
 using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
 using ScienceFestival.REST.Gateway.Responses;
+using ScienceFestival.REST.Gateway.Services;
 
 namespace ScienceFestival.REST.Gateway.Controllers
 {
@@ -13,11 +14,13 @@ namespace ScienceFestival.REST.Gateway.Controllers
     {
         private readonly HttpClient httpClient;
         private readonly Urls urls;
+        private readonly TokenService tokenService;
 
-        public UserController(HttpClient httpClient, IOptions<Urls> config)
+        public UserController(HttpClient httpClient, IOptions<Urls> config, TokenService tokenService)
         {
             this.httpClient = httpClient;
             urls = config.Value;
+            this.tokenService = tokenService;
         }
 
         [HttpGet]
@@ -82,9 +85,12 @@ namespace ScienceFestival.REST.Gateway.Controllers
             response.EnsureSuccessStatusCode();
 
             var content = response.Content.ReadAsStringAsync().Result;
-            var user = JsonConvert.DeserializeObject<LoginResponse>(content);
+            var user = JsonConvert.DeserializeObject<User>(content);
 
-            return Ok(user);
+            var token = tokenService.GenerateToken(user);
+
+            return Ok(new { user, token });
+
         }
 
     }

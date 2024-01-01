@@ -42,7 +42,7 @@ namespace ScienceFestival.REST.Services
             }
         }
 
-        public async Task<object> Login(UserLoginDTO userLoginDTO)
+        public async Task<User> Login(UserLoginDTO userLoginDTO)
         {
             var user = await userManager.FindByNameAsync(userLoginDTO.UserName);
             if (user == null)
@@ -52,34 +52,13 @@ namespace ScienceFestival.REST.Services
 
             if(await userManager.CheckPasswordAsync(user, userLoginDTO.Password))
             {
-                var signKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("78fUjkyzfLz56gTq"));
-                var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                };
-
-                var token = new JwtSecurityToken(
-                  expires: DateTime.Now.AddHours(1),
-                  claims: authClaims,
-                  signingCredentials: new SigningCredentials(signKey, SecurityAlgorithms.HmacSha256)
-                  );
-
-                var toReturn = new JwtSecurityTokenHandler().WriteToken(token);
-                var obj = new
-                {
-                    expires = DateTime.Now.AddHours(1),
-                    token = toReturn,
-                    user = user
-                };
-                return obj;
+                return user;
             }
             else
             {
                 throw new Exception("Username and password not match");
             }
         }
-
-        //TODO: get all performers and get performer by id
 
         public async Task<List<User>> GetAllPerformers()
         {
