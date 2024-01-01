@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using ScienceFestival.REST.Gateway.Models;
 using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
-using ScienceFestival.REST.Gateway.Responses;
 using ScienceFestival.REST.Gateway.Services;
 
 namespace ScienceFestival.REST.Gateway.Controllers
