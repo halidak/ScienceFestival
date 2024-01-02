@@ -18,34 +18,26 @@ namespace ScienceFestival.Async.Services
             this.messageBroker = messageBroker;
         }
 
-        public async Task<Review> CreateReview(ReviewDTO reviewDTO, string token)
+        public async Task<Review> CreateReview(ReviewDTO reviewDTO)
         {
-            var juryId = ExtractJuryIdFromToken(token);
-
-            if (juryId != null)
+            var review = new Review
             {
-                var review = new Review
-                {
-                    ShowId = reviewDTO.ShowId,
-                    JuryId = juryId,
-                    Rating = reviewDTO.Rating,
-                    Comment = reviewDTO.Comment
-                };
+                ShowId = reviewDTO.ShowId,
+                JuryId = reviewDTO.JuryId,
+                Rating = reviewDTO.Rating,
+                Comment = reviewDTO.Comment
+            };
 
-                await context.Reviews.AddAsync(review);
-                await context.SaveChangesAsync();
+            await context.Reviews.AddAsync(review);
+            await context.SaveChangesAsync();
 
-                if (review.Rating > 0 && 
-                    context.Reviews.Where(r => r.ShowId == review.ShowId && r.Rating > 0 && r.JuryId != review.JuryId).Count() > 0)
-                {
-                    messageBroker.Publish(review);
-                }
-                return review;
-            }
-            else
+            if (review.Rating > 0 &&
+                context.Reviews.Where(r => r.ShowId == review.ShowId && r.Rating > 0 && r.JuryId != review.JuryId).Count() > 0)
             {
-                throw new Exception("Invalid or missing JWT token");
+                messageBroker.Publish(review);
             }
+            return review;
+
         }
 
         public async Task<List<Review>> GetAllReviews()
@@ -54,19 +46,9 @@ namespace ScienceFestival.Async.Services
         }
 
         //get reviews from a specific jury
-        public async Task<List<Review>> GetReviewsForJury(string token)
+        public async Task<List<Review>> GetReviewsForJury(string juryId)
         {
-            var juryId = ExtractJuryIdFromToken(token);
-
-            if (juryId != null)
-            {
-                return await context.Reviews.Where(r => r.JuryId == juryId).ToListAsync();
-            }
-            else
-            {
-                throw new Exception("Invalid or missing JWT token");
-            }
-
+            return await context.Reviews.Where(r => r.JuryId == juryId).ToListAsync();
         }
 
         public async Task<List<Review>> GetReviewsForShow(string showId)
@@ -74,33 +56,6 @@ namespace ScienceFestival.Async.Services
             return await context.Reviews.Where(r => r.ShowId == showId).ToListAsync();
         }
 
-        private string ExtractJuryIdFromToken(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-            {
-                return null;
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-            if (jsonToken != null)
-            {
-                var juryIdClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "your-claim-type-for-jury-id");
-
-                if (juryIdClaim != null)
-                {
-                    return juryIdClaim.Value;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
+       
     }
 }

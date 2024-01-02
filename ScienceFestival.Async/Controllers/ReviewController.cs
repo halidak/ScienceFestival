@@ -20,15 +20,7 @@ namespace ScienceFestival.Async.Controllers
         {
             try
             {
-                var tokenHeader = Request.Headers["Authorization"];
-                if (string.IsNullOrEmpty(tokenHeader) || !tokenHeader.ToString().StartsWith("Bearer "))
-                {
-                    return Unauthorized(new { message = "Invalid or missing JWT token" });
-                }
-
-                var token = tokenHeader.ToString().Substring("Bearer ".Length).Trim();
-
-                var review = await reviewService.CreateReview(reviewDTO, token);
+                var review = await reviewService.CreateReview(reviewDTO);
                 return Ok(review);
             }
             catch (Exception ex)
@@ -51,20 +43,12 @@ namespace ScienceFestival.Async.Controllers
             }
         }
 
-        [HttpGet("get-reviews-for-jury")]
-        public async Task<IActionResult> GetReviewsForJury()
+        [HttpGet("get-reviews-for-jury/{id}")]
+        public async Task<IActionResult> GetReviewsForJury(string id)
         {
             try
             {
-                var tokenHeader = Request.Headers["Authorization"];
-                if (string.IsNullOrEmpty(tokenHeader) || !tokenHeader.ToString().StartsWith("Bearer "))
-                {
-                    return Unauthorized(new { message = "Invalid or missing JWT token" });
-                }
-
-                var token = tokenHeader.ToString().Substring("Bearer ".Length).Trim();
-
-                var reviews = await reviewService.GetReviewsForJury(token);
+                var reviews = await reviewService.GetReviewsForJury(id);
                 return Ok(reviews);
             }
             catch (Exception ex)

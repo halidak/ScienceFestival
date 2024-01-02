@@ -14,6 +14,7 @@ namespace ScienceFestival.REST.Gateway.Services
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim("your-claim-type-for-jury-id", user.Id)
             };
 
@@ -26,6 +27,35 @@ namespace ScienceFestival.REST.Gateway.Services
             var toReturn = new JwtSecurityTokenHandler().WriteToken(token);
             
             return toReturn;
+        }
+
+        public string ExtractJuryIdFromToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            if (jsonToken != null)
+            {
+                var juryIdClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "your-claim-type-for-jury-id");
+
+                if (juryIdClaim != null)
+                {
+                    return juryIdClaim.Value;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

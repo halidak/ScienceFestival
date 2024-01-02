@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
 using ScienceFestival.REST.Gateway.Models;
+using ScienceFestival.REST.Gateway.Services;
 using System.Net.Http.Headers;
 
 namespace ScienceFestival.REST.Gateway.Controllers
@@ -13,15 +15,18 @@ namespace ScienceFestival.REST.Gateway.Controllers
     {
         private readonly HttpClient httpClient;
         private readonly Urls urls;
+        private readonly TokenService tokenService;
 
-        public ReviewController(HttpClient httpClient, IOptions<Urls> config)
+        public ReviewController(HttpClient httpClient, IOptions<Urls> config, TokenService service)
         {
             this.httpClient = httpClient;
             urls = config.Value;
+            tokenService = service;
         }
 
         [HttpPost("add-review")]
-        public async Task<IActionResult> AddReview(ReviewDTO reviewDTO)
+        //napravi autorizaciju po rolama
+        public async Task<IActionResult> AddReview(ReviewRequest request)
         {
             try
             {
@@ -34,6 +39,17 @@ namespace ScienceFestival.REST.Gateway.Controllers
                 var token = tokenHeader.ToString().Substring("Bearer ".Length).Trim();
 
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var juryId = tokenService.ExtractJuryIdFromToken(token);
+
+
+                var reviewDTO = new ReviewDTO
+                {
+                    JuryId = juryId,
+                    ShowId = request.ShowId,
+                    Comment = request.Comment,
+                    Rating = request.Rating
+                };
 
                 var response = await httpClient.PostAsJsonAsync(urls.Reviews + "/Review/add-review", reviewDTO);
                 response.EnsureSuccessStatusCode();
@@ -83,7 +99,9 @@ namespace ScienceFestival.REST.Gateway.Controllers
 
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await httpClient.GetAsync(urls.Reviews + "/Review/get-reviews-for-jury");
+                var juryId = tokenService.ExtractJuryIdFromToken(token);
+
+                var response = await httpClient.GetAsync(urls.Reviews + $"/Review/get-reviews-for-jury/{juryId}");
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();
