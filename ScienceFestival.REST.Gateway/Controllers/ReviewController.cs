@@ -25,8 +25,7 @@ namespace ScienceFestival.REST.Gateway.Controllers
             tokenService = service;
         }
 
-        [HttpPost("add-review")]
-        //napravi autorizaciju po rolama
+        [HttpPost("add-review"), Authorize(Roles = "Jury")]
         public async Task<IActionResult> AddReview(ReviewRequest request)
         {
             try
@@ -90,7 +89,7 @@ namespace ScienceFestival.REST.Gateway.Controllers
             }
         }
 
-        [HttpGet("get-reviews-for-jury")]
+        [HttpGet("get-reviews-for-jury"), Authorize(Roles = "Jury")]
         public async Task<IActionResult> GetReviewsForJury()
         {
             try

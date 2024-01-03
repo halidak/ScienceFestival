@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
@@ -24,7 +25,7 @@ namespace ScienceFestival.REST.Gateway.Controllers
             this.tokenService = tokenService;
         }
 
-        [HttpPost("add-show")]
+        [HttpPost("add-show"), Authorize(Roles = "Performer")]
         public async Task<IActionResult> AddShow(ShowRequest request)
         {
 
