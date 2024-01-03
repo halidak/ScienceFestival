@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
 using ScienceFestival.REST.Gateway.Models;
+using ScienceFestival.REST.Gateway.Services;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace ScienceFestival.REST.Gateway.Controllers
@@ -13,16 +15,39 @@ namespace ScienceFestival.REST.Gateway.Controllers
     {
         private readonly HttpClient httpClient;
         private readonly Urls urls;
+        private readonly TokenService tokenService;
 
-        public ShowController(HttpClient httpClient, IOptions<Urls> config)
+        public ShowController(HttpClient httpClient, IOptions<Urls> config, TokenService tokenService)
         {
             this.httpClient = httpClient;
             urls = config.Value;
+            this.tokenService = tokenService;
         }
 
         [HttpPost("add-show")]
-        public async Task<IActionResult> AddShow(ShowDTO show)
+        public async Task<IActionResult> AddShow(ShowRequest request)
         {
+
+            var tokenHeader = Request.Headers["Authorization"];
+            if (string.IsNullOrEmpty(tokenHeader) || !tokenHeader.ToString().StartsWith("Bearer "))
+            {
+                return Unauthorized(new { message = "Invalid or missing JWT token" });
+            }
+
+            var token = tokenHeader.ToString().Substring("Bearer ".Length).Trim();
+
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var performer = tokenService.ExtractJuryIdFromToken(token);
+
+            var show = new ShowDTO
+            {
+                Name = request.Name,
+                ReleaseDate = request.ReleaseDate,
+                Description = request.Description,
+                Performer = performer
+            };
+
             var response = httpClient.PostAsync(urls.Shows + "/show/add", new StringContent(JsonConvert.SerializeObject(show), Encoding.UTF8, "application/json")).Result;
 
             response.EnsureSuccessStatusCode();

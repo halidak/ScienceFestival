@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using ScienceFestival.REST.Gateway.DTOs;
 using ScienceFestival.REST.Gateway.Models;
 using ScienceFestival.REST.Gateway.Services;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace ScienceFestival.REST.Gateway.Controllers
@@ -42,6 +43,11 @@ namespace ScienceFestival.REST.Gateway.Controllers
 
                 var juryId = tokenService.ExtractJuryIdFromToken(token);
 
+                var showExists = await CheckIfShowExists(request.ShowId);
+                if (!showExists)
+                {
+                    return NotFound(new { message = "The specified show does not exist." });
+                }
 
                 var reviewDTO = new ReviewDTO
                 {
@@ -131,6 +137,31 @@ namespace ScienceFestival.REST.Gateway.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        private async Task<bool> CheckIfShowExists(string showId)
+        {
+            try
+            {
+                var response = await httpClient.GetAsync(urls.Shows + $"/show/get/{showId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                return false;
             }
         }
 
