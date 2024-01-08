@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using ScienceFestival.REST;
 using ScienceFestival.REST.Models;
 using ScienceFestival.REST.Persistance;
 using ScienceFestival.REST.Services;
@@ -17,6 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<UserDbContext>(options =>
 {
@@ -48,6 +50,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -60,5 +64,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+MigrateDb.PrepPopulation(app);
+app.MapHealthChecks("/healthz");
 
 app.Run();
