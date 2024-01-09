@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using ScienceFestival.Async;
 using ScienceFestival.Async.Persistance;
 using ScienceFestival.Async.Services;
 
@@ -13,6 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ReviewService>();
 builder.Services.AddScoped<IMessageBroker, MessageBroker>();
+builder.Services.AddHealthChecks();
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -35,5 +37,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+MigrateDb.PrepPopulation(app);
+app.MapHealthChecks("/healthz");
 
 app.Run();

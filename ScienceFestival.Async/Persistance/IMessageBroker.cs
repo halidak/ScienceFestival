@@ -1,4 +1,6 @@
-﻿namespace ScienceFestival.Async.Persistance
+﻿using RabbitMQ.Client;
+
+namespace ScienceFestival.Async.Persistance
 {
     public interface IMessageBroker
     {

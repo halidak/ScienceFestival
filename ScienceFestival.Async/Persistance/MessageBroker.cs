@@ -6,14 +6,21 @@ namespace ScienceFestival.Async.Persistance
 {
     public class MessageBroker : IMessageBroker
     {
+         private readonly IConfiguration configuration;
+
+        public MessageBroker(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         public void Publish<T>(T message)
         {
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost",
-                Port = 5672,
-                UserName = "guest",
-                Password = "guest"
+                HostName = configuration.GetSection("MessageBroker:HostName").Value,
+                Port = int.Parse(configuration.GetSection("MessageBroker:Port").Value),
+                UserName = configuration.GetSection("MessageBroker:Username").Value,
+                Password = configuration.GetSection("MessageBroker:Password").Value
             };
             var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
